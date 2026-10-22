@@ -23,6 +23,11 @@ if (-not (Test-Path $key)) { throw "Signaturschlüssel fehlt: $key" }
 if (git status --porcelain) { throw "Es gibt nicht eingecheckte Änderungen. Bitte zuerst committen." }
 gh auth status | Out-Null
 if ($LASTEXITCODE) { throw "Bitte zuerst 'gh auth login' ausführen." }
+# Bei voller Platte erzeugt makensis still einen defekten Installer.
+$freeGB = (Get-PSDrive (Get-Location).Drive.Name).Free / 1GB
+if ($freeGB -lt 5) { throw ("Nur {0:N1} GB frei. Für den Build bitte mindestens 5 GB freimachen." -f $freeGB) }
+$sevenZip = "C:\Program Files\7-Zip\7z.exe"
+if (-not (Test-Path $sevenZip)) { throw "7-Zip fehlt ($sevenZip), es wird zur Prüfung des Installers gebraucht." }
 
 # ffmpeg/ffprobe werden mit dem Installer ausgeliefert (nicht im Repo).
 New-Item -ItemType Directory -Force "src-tauri\bin" | Out-Null
@@ -44,6 +49,8 @@ if ($LASTEXITCODE) { throw "Build fehlgeschlagen" }
 $dir = "src-tauri\target\release\bundle\nsis"
 $exe = "Fotodatenbank_${Version}_x64-setup.exe"
 if (-not (Test-Path "$dir\$exe.sig")) { throw "Signatur $exe.sig fehlt" }
+$test = & $sevenZip t "$dir\$exe" 2>&1 | Out-String
+if ($LASTEXITCODE -or $test -notmatch "Everything is Ok") { throw "Installer ist beschädigt (7-Zip-Test fehlgeschlagen):`n$test" }
 
 $latest = [ordered]@{
   version   = $Version
