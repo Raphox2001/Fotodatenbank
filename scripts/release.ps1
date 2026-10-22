@@ -59,7 +59,7 @@ $latest = [ordered]@{
 [IO.File]::WriteAllText((Join-Path (Get-Location) "$dir\latest.json"), ($latest | ConvertTo-Json -Depth 5))
 
 git add -A
-git commit -m "Version $Version"
+if (git status --porcelain) { git commit -m "Version $Version" }
 git tag "v$Version"
 git push origin HEAD
 git push origin "v$Version"
