@@ -49,8 +49,25 @@ if ($LASTEXITCODE) { throw "Build fehlgeschlagen" }
 $dir = "src-tauri\target\release\bundle\nsis"
 $exe = "Fotodatenbank_${Version}_x64-setup.exe"
 if (-not (Test-Path "$dir\$exe.sig")) { throw "Signatur $exe.sig fehlt" }
-$test = & $sevenZip t "$dir\$exe" 2>&1 | Out-String
-if ($LASTEXITCODE -or $test -notmatch "Everything is Ok") { throw "Installer ist beschädigt (7-Zip-Test fehlgeschlagen):`n$test" }
+
+# makensis ist 32-bittig und erzeugt bei den großen ffmpeg-Dateien gelegentlich ohne
+# Fehlermeldung einen defekten Installer. Darum prüfen und bei Bedarf neu packen + signieren.
+function Test-Installer { (& $sevenZip t "$dir\$exe" 2>&1 | Out-String) -match "Everything is Ok" }
+$attempt = 1
+while (-not (Test-Installer)) {
+  if ($attempt -ge 4) { throw "Installer ist nach $attempt Versuchen immer noch beschädigt." }
+  $attempt++
+  Write-Host "Installer beschädigt, packe neu (Versuch $attempt) ..." -ForegroundColor Yellow
+  Push-Location "src-tauri\target\release\nsis\x64"
+  & "$env:LOCALAPPDATA\tauri\NSIS\makensis.exe" -INPUTCHARSET UTF8 -OUTPUTCHARSET UTF8 -V1 installer.nsi | Out-Null
+  $code = $LASTEXITCODE
+  Pop-Location
+  if ($code) { throw "makensis fehlgeschlagen" }
+  Copy-Item "src-tauri\target\release\nsis\x64\nsis-output.exe" "$dir\$exe" -Force
+  npx tauri signer sign "$dir\$exe" | Out-Null
+  if ($LASTEXITCODE) { throw "Signieren fehlgeschlagen" }
+}
+Write-Host "Installer geprüft: fehlerfrei." -ForegroundColor Green
 
 $latest = [ordered]@{
   version   = $Version
