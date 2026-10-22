@@ -1,0 +1,46 @@
+[package]
+name = "fotodatenbank"
+version = "0.2.0"
+description = "Verschlüsselte Fotodatenbank für Model-Shootings"
+edition = "2021"
+
+[lib]
+name = "fotodatenbank_lib"
+crate-type = ["rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-dialog = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+argon2 = "0.5"
+chacha20poly1305 = "0.10"
+hkdf = "0.12"
+sha2 = "0.10"
+rand = "0.8"
+zeroize = "1"
+hex = "0.4"
+base64 = "0.22"
+data-encoding = "2"
+gethostname = "1"
+image = { version = "0.25", default-features = false, features = ["jpeg", "png", "tiff", "webp", "gif", "bmp"] }
+kamadak-exif = "0.6"
+zip = { version = "2", default-features = false, features = ["aes-crypto", "time"] }
+sevenz-rust2 = { version = "0.24", default-features = false, features = ["compress", "aes256"] }
+tauri-plugin-updater = "2"
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_System_RemoteDesktop"] }
+
+# Krypto und Bilddekodierung sind ohne Optimierung extrem langsam, auch beim Entwickeln.
+[profile.dev.package."*"]
+opt-level = 3
+
+[profile.release]
+lto = true
+codegen-units = 1
+strip = true

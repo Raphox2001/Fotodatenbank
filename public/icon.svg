@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2b2f3a"/>
+      <stop offset="1" stop-color="#14161c"/>
+    </linearGradient>
+  </defs>
+  <rect x="48" y="48" width="928" height="928" rx="200" fill="url(#bg)"/>
+  <!-- Kamera -->
+  <path d="M250 360h110l40-70h224l40 70h110a50 50 0 0 1 50 50v300a50 50 0 0 1-50 50H250a50 50 0 0 1-50-50V410a50 50 0 0 1 50-50z" fill="#e8e3d8"/>
+  <circle cx="512" cy="550" r="130" fill="#14161c"/>
+  <circle cx="512" cy="550" r="96" fill="#d9a441"/>
+  <!-- Schloss -->
+  <path d="M472 548v-26a40 40 0 0 1 80 0v26" fill="none" stroke="#14161c" stroke-width="22" stroke-linecap="round"/>
+  <rect x="452" y="540" width="120" height="86" rx="16" fill="#14161c"/>
+  <circle cx="512" cy="580" r="13" fill="#d9a441"/>
+</svg>

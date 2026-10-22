@@ -1,0 +1,9 @@
+node_modules/
+dist/
+src-tauri/target/
+src-tauri/gen/
+# Testdaten und Tresore niemals einchecken
+*.7z
+*.zip
+Fotodatenbank-Tresor/
+src-tauri/bin/
